@@ -108,6 +108,8 @@ insert into Serves values('Chicago Pizza', 'supreme', 8.5);
 Find all persons under the age of 18.*/
 
 /*Your query here*/
+SELECT * FROM Person 
+WHERE age < 18;
 
 
 /*Q2 (2 pts)
@@ -115,6 +117,10 @@ Find all pizzerias that serve at least one pizza Amy eats for less than $10.
 Output: pizzeria name, pizza name, price.*/
 
 /*Your query here*/
+SELECT s.pizzeria, s.pizza, s.price
+FROM Serves s
+JOIN Eats e ON s.pizza = e.pizza
+WHERE e.name = 'Amy' AND s.price < 10;
 
 
 /*Q3 (2 pts)
@@ -122,6 +128,10 @@ Find all pizzerias frequented by at least one person under the age of 18.
 Output: pizzeria name, person's name, person's age.*/
 
 /*Your query here*/
+SELECT f.pizzeria, p.name, p.age
+FROM Frequents f
+JOIN Person p ON f.name = p.name
+WHERE p.age < 18;
 
 
 /*Q4 (2 pts)
@@ -129,6 +139,13 @@ Find all pizzerias frequented by at least one person under 18 and at least one p
 Output: pizzeria name.*/
 
 /*Your query here*/
+SELECT f.pizzeria
+FROM Frequents f JOIN Person p ON f.name = p.name
+WHERE p.age < 18
+INTERSECT
+SELECT f.pizzeria
+FROM Frequents f JOIN Person p ON f.name = p.name
+WHERE p.age > 30;
 
 
 /*Q5 (2 pts)
@@ -137,6 +154,12 @@ Output: all quintuples (pizzeria, person1, age1, person2, age2),
 where person1 is under 18 and person2 is over 30.*/
 
 /*Your query here*/
+SELECT f1.pizzeria, p1.name AS person1, p1.age AS age1, p2.name AS person2, p2.age AS age2
+FROM Frequents f1
+JOIN Person p1 ON f1.name = p1.name
+JOIN Frequents f2 ON f1.pizzeria = f2.pizzeria
+JOIN Person p2 ON f2.name = p2.name
+WHERE p1.age < 18 AND p2.age > 30;
 
 
 /*Q6 (2 pts)
@@ -145,6 +168,11 @@ Show only those who eat at least two types of pizza.
 Sort results in descending order by number of pizza types.*/
 
 /*Your query here*/
+SELECT name, COUNT(pizza) AS num_pizzas
+FROM Eats
+GROUP BY name
+HAVING COUNT(pizza) >= 2
+ORDER BY num_pizzas DESC;
 
 
 /*Q7 (2 pts)
@@ -152,3 +180,7 @@ For each type of pizza, find its average price.
 Sort results in descending order by average price.*/
 
 /*Your query here*/
+SELECT pizza, AVG(price) AS avg_price
+FROM Serves
+GROUP BY pizza
+ORDER BY avg_price DESC;
