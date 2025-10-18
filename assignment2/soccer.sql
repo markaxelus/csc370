@@ -27,6 +27,10 @@ Find all the games in England between seasons 1920 and 1999 such that the total 
 Order by total goals descending.*/
 
 /*Your query here*/
+SELECT *
+FROM England
+WHERE season BETWEEN 1920 AND 1999 AND totgoal >= 13
+ORDER BY totgoal DESC;
 
 /*Sample result
 1935-12-26,1935,Tranmere Rovers,Oldham Athletic,13,4,3,17,9,H
@@ -40,6 +44,11 @@ Use the england table and consider only the seasons since 1980.
 Order by total goal.*/
 
 /*Your query here*/
+SELECT totgoal, COUNT(*) AS num_games
+FROM England
+WHERE season >= 1980
+GROUP BY totgoal
+ORDER BY totgoal;
 
 /*Sample result
 0,6085
@@ -59,6 +68,21 @@ Then union the two and take the sum of the number of games.
 */
 
 /*Your query here*/
+SELECT team, SUM(games_played) AS total_games
+FROM (
+    SELECT home AS team, COUNT(*) AS games_played
+    FROM England
+    WHERE tier = 1 AND season >= 1980
+    GROUP BY home
+    UNION ALL
+    SELECT visitor AS team, COUNT(*) AS games_played
+    FROM England
+    WHERE tier = 1 AND season >= 1980
+    GROUP BY visitor
+) AS all_games
+GROUP BY team
+HAVING SUM(games_played) >= 300
+ORDER BY total_games DESC;
 
 /*Sample result
 Everton,1451
@@ -75,6 +99,11 @@ Hint. After selecting the tuples needed (... WHERE tier=1 AND ...) do a GROUP BY
 */
 
 /*Your query here*/
+SELECT home AS team1, visitor AS team2, COUNT(*) AS home_wins
+FROM England
+WHERE tier = 1 AND season >= 1980 AND result = 'H'
+GROUP BY home, visitor
+ORDER BY home_wins DESC;
 
 /*Sample result
 Manchester United,Tottenham Hotspur,27
@@ -88,6 +117,11 @@ find the number of away-wins since 1980 of team1 versus team2.
 Order the results by the number of away-wins in descending order.*/
 
 /*Your query here*/
+SELECT visitor AS team1, home AS team2, COUNT(*) AS away_wins
+FROM England
+WHERE tier = 1 AND season >= 1980 AND result = 'A'
+GROUP BY visitor, home
+ORDER BY away_wins DESC;
 
 /*Sample result
 Manchester United,Aston Villa,18
@@ -106,6 +140,23 @@ Be careful on the join conditions.
 */
 
 /*Your query here*/
+SELECT
+    hw.team1,
+    hw.team2,
+    hw.home_wins,
+    aw.away_wins
+FROM
+    (SELECT home AS team1, visitor AS team2, COUNT(*) AS home_wins
+     FROM England
+     WHERE tier = 1 AND season >= 1980 AND result = 'H'
+     GROUP BY home, visitor) AS hw
+JOIN
+    (SELECT visitor AS team1, home AS team2, COUNT(*) AS away_wins
+     FROM England
+     WHERE tier = 1 AND season >= 1980 AND result = 'A'
+     GROUP BY visitor, home) AS aw
+ON hw.team1 = aw.team1 AND hw.team2 = aw.team2
+ORDER BY away_wins DESC;
 
 /*Sample result
 Manchester United,Aston Villa,26,18
@@ -113,6 +164,23 @@ Arsenal,Aston Villa,20,17
 ...*/
 
 --Create a view, called Wins, with the query for the previous question.
+CREATE VIEW Wins AS
+SELECT
+    hw.team1,
+    hw.team2,
+    hw.home_wins,
+    aw.away_wins
+FROM
+    (SELECT home AS team1, visitor AS team2, COUNT(*) AS home_wins
+     FROM England
+     WHERE tier = 1 AND season >= 1980 AND result = 'H'
+     GROUP BY home, visitor) AS hw
+JOIN
+    (SELECT visitor AS team1, home AS team2, COUNT(*) AS away_wins
+     FROM England
+     WHERE tier = 1 AND season >= 1980 AND result = 'A'
+     GROUP BY visitor, home) AS aw
+ON hw.team1 = aw.team1 AND hw.team2 = aw.team2;
 
 
 /*Q7 (2 pt)
