@@ -109,17 +109,15 @@ Find all persons under the age of 18.*/
 SELECT * 
 FROM Person
 WHERE age < 18;
-/*Your query here*/
 
 
 /*Q2 (2 pts)
 Find all pizzerias that serve at least one pizza Amy eats for less than $10. 
 Output: pizzeria name, pizza name, price.*/
 SELECT DISTINCT S.pizzeria, S.pizza, S.price
-FROM Serves s
-JOIN E.pizza = S.pizza
+FROM Serves S
+JOIN Eats E ON E.pizza = S.pizza
 WHERE E.name = 'Amy' AND S.price < 10;
-/*Your query here*/
 
 
 /*Q3 (2 pts)
@@ -129,7 +127,6 @@ SELECT F.pizzeria, P.name, P.age
 From Frequents F
 JOIN Person P ON F.name = P.name
 WHERE P.age < 18;
-/*Your query here*/
 
 
 /*Q4 (2 pts)
@@ -142,8 +139,6 @@ JOIN Frequents F2 ON F1.pizzeria = F2.pizzeria
 JOIN Person P2 ON F2.name = P2.name
 WHERE P1.age < 18 AND P2.age > 30;
 
-/*Your query here*/
-
 
 /*Q5 (2 pts)
 Find all pizzerias frequented by at least one person under 18 and at least one person over 30. 
@@ -155,7 +150,6 @@ JOIN Person P1 ON F1.name = P1.name
 JOIN Frequents F2 ON F1.pizzeria = F2.pizzeria
 JOIN Person P2 ON F2.name = P2.name
 WHERE P1.age < 18 AND P2.age > 30;
-/*Your query here*/
 
 
 /*Q6 (2 pts)
@@ -167,7 +161,6 @@ FROM Eats
 GROUP BY name
 HAVING COUNT(pizza) >= 2
 ORDER BY pizza_count DESC;
-/*Your query here*/
 
 
 /*Q7 (2 pts)
@@ -177,4 +170,3 @@ SELECT pizza, AVG(price) AS avg_price
 FROM Serves
 GROUP BY pizza
 ORDER BY avg_price DESC;
-/*Your query here*/

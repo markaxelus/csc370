@@ -4,6 +4,7 @@ Creates visualizations for Q2, Q7, Q9, and Q10 of the soccer.sql assignment
 Outputs a single PDF file: soccer_viz.pdf
 """
 
+import os
 import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
@@ -11,10 +12,12 @@ import numpy as np
 
 # Read the CSV files
 print("Loading data...")
-england = pd.read_csv('england.csv')
-france = pd.read_csv('france.csv')
-germany = pd.read_csv('germany.csv')
-italy = pd.read_csv('italy.csv')
+# Resolve CSV paths relative to this script so it works from any CWD
+base_dir = os.path.dirname(__file__)
+england = pd.read_csv(os.path.join(base_dir, 'england.csv'))
+france = pd.read_csv(os.path.join(base_dir, 'france.csv'))
+germany = pd.read_csv(os.path.join(base_dir, 'germany.csv'))
+italy = pd.read_csv(os.path.join(base_dir, 'italy.csv'))
 
 # Create PDF to save all visualizations
 pdf_filename = 'soccer_viz.pdf'
@@ -27,6 +30,10 @@ with PdfPages(pdf_filename) as pdf:
     print("Creating Q2 visualization...")
     
     # Filter England data for seasons >= 1980
+    # Ensure total goals exists; compute if missing
+    if 'totgoal' not in england.columns and {'hgoal', 'vgoal'}.issubset(england.columns):
+        england = england.copy()
+        england['totgoal'] = england['hgoal'] + england['vgoal']
     england_1980 = england[england['season'] >= 1980]
     
     # Count games by total goals
@@ -129,7 +136,9 @@ with PdfPages(pdf_filename) as pdf:
     # Italy average total goals per season (since 1970)
     # Italy table doesn't have totgoal, calculate from hgoal + vgoal
     italy_1970 = italy[italy['season'] >= 1970].copy()
-    italy_1970['totgoal'] = italy_1970['hgoal'] + italy_1970['vgoal']
+    # Compute total goals for Italy if not already present
+    if 'totgoal' not in italy_1970.columns and {'hgoal', 'vgoal'}.issubset(italy_1970.columns):
+        italy_1970['totgoal'] = italy_1970['hgoal'] + italy_1970['vgoal']
     italy_avg = italy_1970.groupby('season')['totgoal'].mean().reset_index()
     italy_avg.columns = ['season', 'italy_avg']
     
@@ -195,7 +204,7 @@ with PdfPages(pdf_filename) as pdf:
     pdf.savefig(fig)
     plt.close()
 
-print(f"\n✓ All visualizations saved to {pdf_filename}")
+print(f"\nAll visualizations saved to {pdf_filename}")
 print("\nGenerated visualizations:")
 print("  - Q2: Total goals distribution bar chart")
 print("  - Q7: Arsenal comparison bar charts (home & away wins)")
